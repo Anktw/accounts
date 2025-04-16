@@ -67,7 +67,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Sign in</CardTitle>
-          <CardDescription>Choose your preferred login method</CardDescription>
+          <CardDescription>This will sign in to all of my projects.</CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -84,9 +84,8 @@ export default function LoginPage() {
           )}
 
           <Tabs defaultValue="email" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="email">Email & Password</TabsTrigger>
-              <TabsTrigger value="phone">Phone Number</TabsTrigger>
+            <TabsList className="grid grid-cols-1 w-full mb-6">
+              <TabsTrigger value="email">Email/Username & Password</TabsTrigger>
             </TabsList>
             <TabsContent value="email">
               <form onSubmit={handleSubmit} className="space-y-4">

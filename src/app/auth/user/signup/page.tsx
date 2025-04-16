@@ -71,9 +71,8 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="email" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="email">Email & Password</TabsTrigger>
-              <TabsTrigger value="phone">Phone Number</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-1 mb-6">
+              <TabsTrigger value="email">Email, Username & Password</TabsTrigger>
             </TabsList>
             <TabsContent value="email">
               <form onSubmit={handleSubmit} className="space-y-4">
