@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     }
 
     const formBody = new URLSearchParams({
-      username: email,
+      username_or_email: email, // corrected here
       password,
     }).toString()
 
@@ -36,13 +36,13 @@ export async function POST(request: Request) {
 
     const encryptedSession = await encrypt(session)
 
-    const cookieStore = await cookies();
+    const cookieStore = cookies(); // no await here
     cookieStore.set({
       name: "session",
       value: encryptedSession,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: 7 * 24 * 60 * 60, // 1 week
       path: "/",
       sameSite: "lax",
     })

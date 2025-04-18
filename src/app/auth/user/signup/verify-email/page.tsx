@@ -9,6 +9,7 @@ import { AlertCircle, Loader2, Mail } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { setCookie } from "nookies";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function VerifyEmailPage() {
   const [isResending, setIsResending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
-  const [remainingTime, setRemainingTime] = useState(300)
+  const [remainingTime, setRemainingTime] = useState(600) // 10 minutes
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -30,6 +31,7 @@ export default function VerifyEmailPage() {
     }
     return () => clearTimeout(timer);
   }, [cooldown]);
+
   useEffect(() => {
     if (remainingTime <= 0) return
 
@@ -61,21 +63,34 @@ export default function VerifyEmailPage() {
         }
       })();
 
-      const res = await fetch("/api/auth/verify-email", {
+      const res: Response = await fetch("/api/auth/verify-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp, timezone }),
       });
 
-      const data = await res.json();
+      const data: { access_token: string; detail?: string } = await res.json();
 
       if (!res.ok) {
         throw new Error(data.detail || "Verification failed");
       }
 
-      // Success — redirect or show success message
-      router.push("/");
-    } catch (err) {
+      const accessToken = data.access_token;
+
+      if (accessToken) {
+        // Save token for 30 days
+        setCookie(null, "session", accessToken, {
+          maxAge: 30 * 24 * 60 * 60, // 30 days
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+        });
+
+        // Redirect to dashboard
+        router.push("/user/dashboard");
+      }
+    } 
+    catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsVerifying(false);
@@ -103,7 +118,7 @@ export default function VerifyEmailPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
-      setIsResending(false);
+      setIsVerifying(false);
     }
   };
 

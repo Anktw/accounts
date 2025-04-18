@@ -1,30 +1,44 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { decrypt } from "@/lib/crypto";
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+const protectedRoutes = ["/", "/user/dashboard"];
+const publicAuthRoutes = ["/auth/user/login", "/auth/user/signup", "/auth/user/signup/verify-email"];
 
-  const sessionCookie = request.cookies.get('session');
+export async function middleware(request: NextRequest) {
+  let path = request.nextUrl.pathname.replace(/\/$/, "") || "/";
 
+  const sessionCookie = request.cookies.get("session")?.value;
+  let isAuthenticated = false;
 
-  const isPublicFile = pathname.startsWith('/_next/') || pathname.startsWith('/favicon.ico') || pathname.startsWith('/api/');
-  if (isPublicFile) {
-    return NextResponse.next();
+  if (sessionCookie) {
+    try {
+      const sessionData = await decrypt(sessionCookie);
+      if (sessionData?.userId && sessionData?.expiresAt) {
+        isAuthenticated = new Date(sessionData.expiresAt) > new Date();
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Session decryption error:", error);
+      }
+    }
   }
 
-  const isLoginPage = pathname === '/auth/user/login';
-  const isRegisterPage = pathname === '/auth/user/signup';
-  const isForgotPasswordPage = pathname === '/auth/user/login/forgot-password';
-  const isResetPasswordPage = pathname === '/auth/user/login/reset-password';
-  const isVerifyEmailPage = pathname === '/auth/user/signup/verify-email';
-
-  if (sessionCookie && (isLoginPage||isRegisterPage|| isForgotPasswordPage || isResetPasswordPage || isVerifyEmailPage)) {
-    return NextResponse.redirect(new URL('/', request.url));
+  if (protectedRoutes.some((route) => path.startsWith(route)) && !isAuthenticated) {
+    const loginUrl = new URL("/auth/user/login", request.url);
+    loginUrl.searchParams.set("callbackUrl", encodeURIComponent(request.url));
+    return NextResponse.redirect(loginUrl);
   }
-  if (!sessionCookie && !isLoginPage && !isRegisterPage && !isForgotPasswordPage && !isResetPasswordPage && !isVerifyEmailPage) {
 
-    return NextResponse.redirect(new URL('/auth/user/login', request.url));
+  if (publicAuthRoutes.includes(path) && isAuthenticated) {
+    return NextResponse.redirect(new URL("/user/dashboard", request.url));
   }
 
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api|.*\\..*).*)",
+  ],
+};
