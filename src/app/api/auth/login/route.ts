@@ -28,13 +28,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: data.detail || "Authentication failed" }, { status: response.status })
     }
 
-    const token = data.access_token
-    const decoded: any = jwtDecode(token)
+    const access_token = data.access_token
+    const refresh_token = data.refresh_token
+    const decoded: any = jwtDecode(access_token)
 
     const session = {
-      token,
+      token: access_token,
+      refreshToken: refresh_token,
       userId: decoded.sub, // ✅ Add this for middleware to work
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+
     }
 
     const encryptedSession = await encrypt(session)
@@ -45,7 +48,7 @@ export async function POST(request: Request) {
       value: encryptedSession,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: 30 * 24 * 60 * 60,
       path: "/",
       sameSite: "lax",
     })

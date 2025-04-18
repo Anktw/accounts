@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { fetchWithAuth } from "@/utils/fetchWithAuth"
 
 type User = {
   email: string
@@ -19,7 +20,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await fetch("/api/user/me")
+      const res = await fetchWithAuth("/api/user/me")
       const data = await res.json()
       if (res.ok) setUser(data)
       setLoading(false)
@@ -69,6 +70,14 @@ export default function Dashboard() {
         ))}
         <Button onClick={handleSave} disabled={saving}>
           {saving ? "Saving..." : "Update"}
+        </Button>
+        <Button
+          onClick={async () => {
+            await fetch("/api/auth/logout", { method: "POST" })
+            window.location.href = "/auth/user/login"
+          }}
+        >
+          Logout
         </Button>
       </div>
     </div>
