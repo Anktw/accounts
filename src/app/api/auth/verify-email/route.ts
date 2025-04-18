@@ -2,19 +2,19 @@ import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
   try {
-    const { username, email, password } = await request.json()
+    const { email, otp, timezone } = await request.json()
 
-    if (!username || !email || !password) {
-      return NextResponse.json({ detail: "Missing required fields" }, { status: 400 })
+    if (!otp) {
+      return NextResponse.json({ detail: "Please Enter OTP" }, { status: 400 })
     }
 
 
-    const response = await fetch(`${process.env.FAST_URL}/auth/start-registration`, {
+    const response = await fetch(`${process.env.FAST_URL}/auth/verify-otp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ email, otp, timezone }),
     })
 
     const data = await response.json()
@@ -24,7 +24,6 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ message: "User registered successfully" }, { status: 201 })
-    
   } catch (error) {
     console.error("Signup error:", error)
     return NextResponse.json({ detail: "Internal server error" }, { status: 500 })

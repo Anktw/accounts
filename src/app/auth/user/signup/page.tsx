@@ -12,7 +12,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, Loader2 } from "lucide-react"
 import { SocialAuthButtons } from "@/components/social-auth-buttons"
-import { PhoneSignup } from "@/components/phone-signup"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function SignupPage() {
@@ -54,7 +53,7 @@ export default function SignupPage() {
       }
 
       // Redirect to login page on successful signup
-      router.push("/auth/user/login?registered=true")
+      router.push(`signup/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred")
     } finally {
@@ -110,9 +109,6 @@ export default function SignupPage() {
                 </Button>
               </form>
             </TabsContent>
-            <TabsContent value="phone">
-              <PhoneSignup />
-            </TabsContent>
           </Tabs>
 
           <div className="mt-6">
@@ -131,7 +127,7 @@ export default function SignupPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/auth/user/login" className="text-primary underline underline-offset-4">
+            <Link href="login" className="text-primary underline underline-offset-4">
               Sign in
             </Link>
           </p>

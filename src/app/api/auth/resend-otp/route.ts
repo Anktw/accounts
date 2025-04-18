@@ -2,19 +2,19 @@ import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
   try {
-    const { username, email, password } = await request.json()
+    const { email } = await request.json()
 
-    if (!username || !email || !password) {
-      return NextResponse.json({ detail: "Missing required fields" }, { status: 400 })
+    if (!email) {
+      return NextResponse.json({ detail: "Missing Email go back to sign up page" }, { status: 400 })
     }
 
 
-    const response = await fetch(`${process.env.FAST_URL}/auth/start-registration`, {
+    const response = await fetch(`${process.env.FAST_URL}/auth/resend-otp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ email }),
     })
 
     const data = await response.json()
