@@ -12,9 +12,10 @@ import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SocialAuthButtons } from "@/components/social-auth-buttons"
 import { PhoneLogin } from "@/components/phone-login"
+import { Suspense } from "react"
 
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/user/dashboard"
@@ -156,5 +157,13 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading login...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }
