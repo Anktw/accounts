@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decrypt } from "@/lib/crypto";
 
-const protectedRoutes = ["/", "/user/dashboard"];
+const protectedRoutes = [ "/user/dashboard"];
 const publicAuthRoutes = ["/auth/user/login", "/auth/user/signup", "/auth/user/signup/verify-email"];
 
 export async function middleware(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
 
   if (protectedRoutes.some((route) => path.startsWith(route)) && !isAuthenticated) {
     const loginUrl = new URL("/auth/user/login", request.url);
-    loginUrl.searchParams.set("callbackUrl", encodeURIComponent(request.url));
+    loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 

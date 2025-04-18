@@ -2,25 +2,26 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { encrypt } from "@/lib/crypto"
 
+
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json()
+    const { username_or_email, password } = await request.json()
 
-    if (!email || !password) {
-      return NextResponse.json({ detail: "Missing email or password" }, { status: 400 })
+    if (!username_or_email || !password) {
+      return NextResponse.json({ detail: "Missing email/username or password" }, { status: 400 })
     }
 
-    const formBody = new URLSearchParams({
-      username_or_email: email, // corrected here
+    const body = JSON.stringify({
+      username_or_email,
       password,
-    }).toString()
+    })
 
     const response = await fetch(`${process.env.FAST_URL}/auth/login`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
       },
-      body: formBody,
+      body: body,
     })
 
     const data = await response.json()
@@ -31,18 +32,18 @@ export async function POST(request: Request) {
 
     const session = {
       token: data.access_token,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     }
 
     const encryptedSession = await encrypt(session)
 
-    const cookieStore = cookies(); // no await here
+    const cookieStore = await cookies();
     cookieStore.set({
       name: "session",
       value: encryptedSession,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60, // 1 week
+      maxAge: 7 * 24 * 60 * 60,
       path: "/",
       sameSite: "lax",
     })
