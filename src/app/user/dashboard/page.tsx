@@ -1,39 +1,76 @@
-import { cookies } from "next/headers"
-import { jwtDecode } from "jwt-decode"
-import { decrypt } from "@/lib/crypto" // You already have this!
+"use client"
 
-type TokenPayload = {
-  sub: string
+import { useEffect, useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+
+type User = {
   email: string
-  name: string
-  exp: number
+  username: string
+  first_name?: string
+  last_name?: string
 }
 
-export default async function DashboardPage() {
-  const cookieStore = cookies()
-  const encryptedSession = (await cookieStore).get("session")?.value
+export default function Dashboard() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
-  let name: string | null = null
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch("/api/user/me")
+      const data = await res.json()
+      if (res.ok) setUser(data)
+      setLoading(false)
+    }
 
-  if (encryptedSession) {
-    try {
-      const sessionData = await decrypt(encryptedSession) as { token: string, expiresAt: string }
-      
-      if (sessionData.token) {
-        const decoded: TokenPayload = jwtDecode(sessionData.token)
-        name = decoded.name || "User"
-      }
-    } catch (error) {
-      console.error("Failed to decode session token:", error)
-      name = "User"
+    fetchUser()
+  }, [])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return
+    setUser({ ...user, [e.target.name]: e.target.value })
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    const res = await fetch("/api/user/me", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user),
+    })
+    setSaving(false)
+    if (res.ok) {
+      alert("User info updated!")
+    } else {
+      const error = await res.json()
+      alert(error.detail || "Update failed")
     }
   }
 
+  if (loading || !user) return <div className="text-center mt-10">Loading...</div>
+
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-bold">
-        {name ? `Hello, ${name}! 👋` : "Loading..."}
-      </h1>
+    <div className="max-w-xl mx-auto mt-10 space-y-6">
+      <h2 className="text-2xl font-semibold">Account Settings</h2>
+      <div className="grid gap-4">
+        {["email", "username", "first_name", "last_name"].map((field) => (
+          <div key={field}>
+            <Label htmlFor={field}>{field.replace("_", " ").toUpperCase()}</Label>
+            <Input
+              id={field}
+              name={field}
+              value={(user as any)[field] || ""}
+              onChange={handleChange}
+              type={field === "email" ? "email" : "text"}
+            />
+          </div>
+        ))}
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? "Saving..." : "Update"}
+        </Button>
+      </div>
     </div>
   )
 }

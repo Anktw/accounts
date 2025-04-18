@@ -9,7 +9,6 @@ import { AlertCircle, Loader2, Mail } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { setCookie } from "nookies";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -21,32 +20,27 @@ export default function VerifyEmailPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-
-  const [remainingTime, setRemainingTime] = useState(600) // 10 minutes
+  const [remainingTime, setRemainingTime] = useState(600);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
     if (cooldown > 0) {
-      timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
     }
-    return () => clearTimeout(timer);
   }, [cooldown]);
 
   useEffect(() => {
-    if (remainingTime <= 0) return
-
-    const timer = setTimeout(() => {
-      setRemainingTime((prev) => prev - 1)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [remainingTime])
+    if (remainingTime > 0) {
+      const timer = setTimeout(() => setRemainingTime((t) => t - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [remainingTime]);
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
-  }
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,44 +48,32 @@ export default function VerifyEmailPage() {
     setError("");
 
     try {
-      const timezone = (() => {
-        try {
-          return Intl.DateTimeFormat().resolvedOptions().timeZone;
-        } catch (error) {
-          console.error("Failed to detect timezone:", error);
-          return "UTC";
-        }
-      })();
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
-      const res: Response = await fetch("/api/auth/verify-email", {
+      const res = await fetch("/api/auth/verify-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp, timezone }),
       });
 
-      const data: { access_token: string; detail?: string } = await res.json();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Verification failed");
 
-      if (!res.ok) {
-        throw new Error(data.detail || "Verification failed");
-      }
+      const token = data.access_token;
+      if (!token) throw new Error("No token received");
 
-      const accessToken = data.access_token;
+      // Securely set encrypted cookie
+      const cookieRes = await fetch("/api/auth/set-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: token }),
+      });
 
-      if (accessToken) {
-        // Save token for 30 days
-        setCookie(null, "session", accessToken, {
-          maxAge: 30 * 24 * 60 * 60, // 30 days
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-        });
+      if (!cookieRes.ok) throw new Error("Failed to save session");
 
-        // Redirect to dashboard
-        router.push("/user/dashboard");
-      }
-    } 
-    catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      router.push("/user/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsVerifying(false);
     }
@@ -109,16 +91,13 @@ export default function VerifyEmailPage() {
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Resend failed");
 
-      if (!res.ok) {
-        throw new Error(data.detail || "Resend failed");
-      }
-
-      setCooldown(30); // 30s cooldown
+      setCooldown(30);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
-      setIsVerifying(false);
+      setIsResending(false);
     }
   };
 
@@ -133,86 +112,64 @@ export default function VerifyEmailPage() {
   return (
     <div className="container mx-auto flex min-h-screen items-center justify-center px-4 py-8">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
+        <CardHeader>
           <div className="flex justify-center mb-2">
             <div className="rounded-full bg-primary/10 p-3">
               <Mail className="h-6 w-6 text-primary" />
             </div>
           </div>
-
           <CardTitle className="text-2xl text-center">Verify your email</CardTitle>
           <CardDescription className="text-center">
-            {email ? (
-              <>
-                I have sent a verification code to <span className="font-medium">{email}</span>
-              </>
-            ) : (
-              "Enter the verification code sent to your email"
-            )}
+            I’ve sent a verification code to <span className="font-medium">{email}</span>
           </CardDescription>
         </CardHeader>
+
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
+
         <CardContent>
           <form onSubmit={handleVerify} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="otp">Verification Code</Label>
               <Input
                 type="text"
-                placeholder="Enter OTP"
+                id="otp"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
               />
-              {remainingTime > 0 && (
-                <p className="text-xs text-muted-foreground text-center">Code expires in {formatTime(remainingTime)}</p>
-              )}
-              {remainingTime <= 0 && (
-                <p className="text-xs text-destructive text-center">Code expired. Please request a new one.</p>
-              )}
+              <p className="text-xs text-center text-muted-foreground">
+                {remainingTime > 0
+                  ? `Code expires in ${formatTime(remainingTime)}`
+                  : `Code expired. Please request a new one.`}
+              </p>
             </div>
+
             <Button type="submit" className="w-full" disabled={isVerifying}>
-              {isVerifying ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Verifying...
-                </>
-              ) : (
-                "Verify OTP"
-              )}
+              {isVerifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {isVerifying ? "Verifying..." : "Verify OTP"}
             </Button>
           </form>
 
           <div className="text-center">
-            <Button
-              variant="link"
-              onClick={handleResend}
-              disabled={cooldown > 0 || isResending}
-              className="p-0"
-            >
-              {isResending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Resending...
-                </>
-              ) : cooldown > 0 ? (
-                `Resend OTP in ${cooldown}s`
-              ) : (
-                "Resend OTP"
-              )}
+            <Button variant="link" onClick={handleResend} disabled={cooldown > 0 || isResending}>
+              {isResending
+                ? "Resending..."
+                : cooldown > 0
+                ? `Resend OTP in ${cooldown}s`
+                : "Resend OTP"}
             </Button>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          <div className="text-center text-sm">
-            <Link href="./" className="text-primary underline underline-offset-4">
-              Back to Sign Up
-            </Link>
-          </div>
+
+        <CardFooter className="justify-center text-sm">
+          <Link href="/auth/user/signup" className="text-primary underline underline-offset-4">
+            Back to Sign Up
+          </Link>
         </CardFooter>
       </Card>
     </div>

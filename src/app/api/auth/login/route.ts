@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { encrypt } from "@/lib/crypto"
-
+import { jwtDecode } from "jwt-decode"
 
 export async function POST(request: Request) {
   try {
@@ -11,33 +11,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ detail: "Missing email/username or password" }, { status: 400 })
     }
 
-    const body = JSON.stringify({
-      username_or_email,
-      password,
-    })
+    const body = JSON.stringify({ username_or_email, password })
 
     const response = await fetch(`${process.env.FAST_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: body,
+      body,
     })
 
-    const data = await response.json()
+    const text = await response.text()
+    const data = text ? JSON.parse(text) : {}
 
     if (!response.ok) {
       return NextResponse.json({ detail: data.detail || "Authentication failed" }, { status: response.status })
     }
 
+    const token = data.access_token
+    const decoded: any = jwtDecode(token)
+
     const session = {
-      token: data.access_token,
+      token,
+      userId: decoded.sub, // ✅ Add this for middleware to work
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     }
 
     const encryptedSession = await encrypt(session)
 
-    const cookieStore = await cookies();
+    const cookieStore = await cookies()
     cookieStore.set({
       name: "session",
       value: encryptedSession,
