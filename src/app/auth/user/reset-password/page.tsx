@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 
-export default function ResetPasswordPage() {
+function ResetPasswordFunction() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
@@ -89,5 +89,13 @@ export default function ResetPasswordPage() {
         {loading ? "Resetting..." : "Reset Password"}
       </Button>
     </form>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading login...</div>}>
+      <ResetPasswordFunction />
+    </Suspense>
   )
 }
