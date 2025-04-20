@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { fetchWithAuth } from "@/utils/fetchWithAuth"
+import DashboardLoading from "./loading"
+import Link from "next/link"
 
 type User = {
   email: string
@@ -19,14 +21,19 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const res = await fetchWithAuth("/api/user/me")
-      const data = await res.json()
-      if (res.ok) setUser(data)
-      setLoading(false)
+    async function load() {
+      try {
+        const res = await fetchWithAuth("/api/user/me")
+        if (!res.ok) throw new Error("Not authorized")
+        const data = await res.json()
+        setUser(data)
+      } catch {
+        // maybe redirect to login here
+      } finally {
+        setLoading(false)
+      }
     }
-
-    fetchUser()
+    load()
   }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,22 +42,28 @@ export default function Dashboard() {
   }
 
   const handleSave = async () => {
+    if (!user) return
     setSaving(true)
-    const res = await fetch("/api/user/me", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user),
-    })
-    setSaving(false)
-    if (res.ok) {
-      alert("User info updated!")
-    } else {
-      const error = await res.json()
-      alert(error.detail || "Update failed")
+    try {
+      const res = await fetchWithAuth("/api/user/me", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user),
+      })
+      if (!res.ok) throw new Error("Update failed")
+      const updated = await res.json()
+      setUser(updated)
+      alert("Profile updated!")
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Something went wrong")
+    } finally {
+      setSaving(false)
     }
   }
 
-  if (loading || !user) return <div className="text-center mt-10">Loading...</div>
+  if (loading) return <div><DashboardLoading /></div>
+  if (!user) return <div className="text-center">User not found...Please clear your cache and refresh this page</div>
+
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">

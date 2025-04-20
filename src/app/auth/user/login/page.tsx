@@ -110,7 +110,7 @@ function LoginContent() {
                       Remember me
                     </Label>
                   </div>
-                  <Link href="/request-password-reset" className="text-sm text-primary underline underline-offset-4">
+                  <Link href="./forgot-password" className="text-sm text-primary underline underline-offset-4">
                     Forgot password?
                   </Link>
                 </div>
