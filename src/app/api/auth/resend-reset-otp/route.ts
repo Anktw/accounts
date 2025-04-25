@@ -3,14 +3,14 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { token, new_password } = body;
-    if (!token || !new_password) {
-      return NextResponse.json({ detail: "Token and new_password are required" }, { status: 400 });
+    const email = body.email || body.email_or_username;
+    if (!email) {
+      return NextResponse.json({ detail: "Email is required" }, { status: 400 });
     }
-    const backendRes = await fetch(`${process.env.FAST_URL}/auth/reset-password`, {
+    const backendRes = await fetch(`${process.env.FAST_URL}/auth/resend-reset-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, new_password })
+      body: JSON.stringify({ email })
     });
     let data: any = null;
     let isJSON = true;

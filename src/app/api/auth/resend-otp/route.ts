@@ -9,21 +9,34 @@ export async function POST(request: Request) {
     }
 
 
-    const response = await fetch(`${process.env.FAST_URL}/auth/resend-otp`, {
+    const backendRes = await fetch(`${process.env.FAST_URL}/auth/resend-reset-otp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email }),
-    })
+    });
 
-    const data = await response.json()
-
-    if (!response.ok) {
-      return NextResponse.json({ detail: data.detail || "Registration failed" }, { status: response.status })
+    let data: any = null;
+    let isJSON = true;
+    try {
+      data = await backendRes.json();
+    } catch {
+      isJSON = false;
+      data = await backendRes.text();
     }
 
-    return NextResponse.json({ message: "User registered successfully" }, { status: 201 })
+    if (!backendRes.ok) {
+      return NextResponse.json(
+        typeof data === "object" ? data : { detail: data || "Failed to resend OTP" },
+        { status: backendRes.status }
+      );
+    }
+
+    return NextResponse.json(
+      typeof data === "object" ? data : { message: data || "OTP resent successfully" },
+      { status: backendRes.status }
+    );
     
   } catch (error) {
     console.error("Signup error:", error)
