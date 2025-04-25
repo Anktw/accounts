@@ -158,7 +158,7 @@ export default function ForgotPasswordPage() {
       }
       setSuccess("Password updated successfully. You can now log in.")
       setTimeout(() => {
-        router.push("/login")
+        router.push("/auth/user/login")
       }, 1500)
       setStep(1)
       setEmail("")
@@ -302,7 +302,7 @@ export default function ForgotPasswordPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             Remember your password?{" "}
-            <Link href="./login" className="text-primary underline underline-offset-4">
+            <Link href="/auth/user/login" className="text-primary underline underline-offset-4">
               Back to login
             </Link>
           </p>

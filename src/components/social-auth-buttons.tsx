@@ -14,8 +14,15 @@ export function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
   async function handleSocialAuth(provider: string) {
     setIsLoading(provider)
     try {
-      // Redirect to the appropriate OAuth endpoint
-      window.location.href = `/api/auth/${provider}`
+      if (provider === "google") {
+        window.location.href = "/api/auth/google";
+      } else if (provider === "microsoft") {
+        window.location.href = "/api/auth/microsoft";
+      } else if (provider === "github") {
+        window.location.href = "/api/auth/github";
+      } else {
+        window.location.href = `/api/auth/${provider}`;
+      }
     } catch (error) {
       console.error(`${provider} auth error:`, error)
     } finally {
