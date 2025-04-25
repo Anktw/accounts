@@ -16,8 +16,6 @@ export function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
     try {
       if (provider === "google") {
         window.location.href = "/api/auth/google";
-      } else if (provider === "microsoft") {
-        window.location.href = "/api/auth/microsoft";
       } else if (provider === "github") {
         window.location.href = "/api/auth/github";
       } else {
