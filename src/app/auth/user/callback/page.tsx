@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 export default function SocialCallbackPage() {
-  const router = useRouter()
+  /*const router = useRouter()
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -25,7 +25,6 @@ export default function SocialCallbackPage() {
 
       if (res.ok) {
         router.push("/user/dashboard")
-        router.replace("/user/dashboard") // Replace to avoid going back to the login page
       } else {
         console.error("Failed to set session")
         router.push("/auth/user/login")
@@ -33,7 +32,7 @@ export default function SocialCallbackPage() {
     }
 
     handleSession()
-  }, [searchParams, router])
+  }, [searchParams, router])*/
 
   return <p>Logging you in...</p>
 }
