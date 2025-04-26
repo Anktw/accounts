@@ -12,7 +12,7 @@ export default function SocialCallbackPage() {
     const refresh_token = searchParams.get("refresh_token")
 
     if (!access_token || !refresh_token) {
-      router.push("/login")
+      router.push("/auth/user/login")
       return
     }
 
@@ -28,7 +28,7 @@ export default function SocialCallbackPage() {
         router.replace("/user/dashboard") // Replace to avoid going back to the login page
       } else {
         console.error("Failed to set session")
-        router.push("/login")
+        router.push("/auth/user/login")
       }
     }
 
