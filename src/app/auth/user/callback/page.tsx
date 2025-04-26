@@ -25,6 +25,7 @@ export default function SocialCallbackPage() {
 
       if (res.ok) {
         router.push("/user/dashboard")
+        router.replace("/user/dashboard") // Replace to avoid going back to the login page
       } else {
         console.error("Failed to set session")
         router.push("/login")
