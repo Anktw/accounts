@@ -1,57 +1,38 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { cookies } from "next/headers"
-import { encrypt } from "@/lib/crypto"
-import { jwtDecode } from "jwt-decode"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export default function SocialCallbackPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    async function finalizeLogin() {
-      try {
-        const res = await fetch("/api/auth/session")
-        if (!res.ok) {
-          throw new Error("Failed to get session")
-        }
+    const access_token = searchParams.get("access_token")
+    const refresh_token = searchParams.get("refresh_token")
 
-        const data = await res.json()
-        const access_token = data.access_token
-        const refresh_token = data.refresh_token
+    if (!access_token || !refresh_token) {
+      router.push("/login")
+      return
+    }
 
-        const decoded: any = jwtDecode(access_token)
+    async function handleSession() {
+      const res = await fetch("/api/auth/set-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token, refresh_token }),
+      })
 
-        const session = {
-          token: access_token,
-          refreshToken: refresh_token,
-          userId: decoded.sub,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        }
-
-        const encryptedSession = await encrypt(session)
-
-        const cookieStore = await cookies()
-        cookieStore.set({
-          name: "session",
-          value: encryptedSession,
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          maxAge: 30 * 24 * 60 * 60,
-          path: "/",
-          sameSite: "lax",
-        })
-
+      if (res.ok) {
         router.push("/user/dashboard")
-      } catch (error) {
-        console.error("Social login error:", error)
+      } else {
+        console.error("Failed to set session")
         router.push("/login")
       }
     }
 
-    finalizeLogin()
-  }, [router])
+    handleSession()
+  }, [searchParams, router])
 
-  return <p>Finalizing login...</p>
+  return <p>Logging you in...</p>
 }
