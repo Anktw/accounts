@@ -29,7 +29,6 @@ export default function SocialCallbackPage() {
           throw new Error("Failed to save session");
         }
 
-        // ✅ Redirect to dashboard
         router.push("/user/dashboard");
       } catch (err) {
         console.error("Social callback error:", err);

@@ -30,7 +30,6 @@ export default function SignupPage() {
     const password = formData.get("password") as string
     const confirmPassword = formData.get("confirmPassword") as string
 
-    // Client-side validation
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       setIsLoading(false)
@@ -51,8 +50,6 @@ export default function SignupPage() {
       if (!response.ok) {
         throw new Error(data.detail || "Failed to sign up")
       }
-
-      // Redirect to login page on successful signup
       router.push(`signup/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred")

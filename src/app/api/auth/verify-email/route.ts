@@ -21,8 +21,6 @@ export async function POST(request: Request) {
     if (!response.ok) {
       return NextResponse.json({ detail: data.detail || "Verification failed" }, { status: response.status })
     }
-
-    // ✅ Return the token so client can store session
     return NextResponse.json({ access_token: data.access_token }, { status: 200 })
   } catch (error) {
     console.error("Verify email route error:", error)

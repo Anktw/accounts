@@ -15,8 +15,6 @@ export async function POST() {
     if (!session.refreshToken) {
       return new Response(JSON.stringify({ detail: "No refresh token" }), { status: 401 })
     }
-
-    // new access token from backend
     const response = await fetch(`${process.env.FAST_URL}/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -30,8 +28,6 @@ export async function POST() {
     const data = await response.json()
     const newAccessToken = data.access_token
     const decoded: any = jwtDecode(newAccessToken)
-
-    // Update session
     const updatedSession = {
       ...session,
       token: newAccessToken,

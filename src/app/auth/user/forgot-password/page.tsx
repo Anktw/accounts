@@ -25,7 +25,6 @@ export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState("")
   const [resentMsg, setResentMsg] = useState("")
 
-  // Step 1: Request password reset
   async function handleRequestReset(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setIsLoading(true)
@@ -59,7 +58,6 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  // Step 2: Verify OTP
   async function handleVerifyOtp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setIsLoading(true)
@@ -93,8 +91,6 @@ export default function ForgotPasswordPage() {
       setIsLoading(false)
     }
   }
-
-  // Step 2: Resend OTP
   async function handleResendOtp() {
     setIsLoading(true)
     setError("")
@@ -125,8 +121,6 @@ export default function ForgotPasswordPage() {
       setIsLoading(false)
     }
   }
-
-  // Step 3: Reset password
   async function handleResetPassword(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setIsLoading(true)
@@ -197,8 +191,6 @@ export default function ForgotPasswordPage() {
               <AlertDescription>{success}</AlertDescription>
             </Alert>
           )}
-
-          {/* Step 1: Request password reset */}
           {step === 1 && (
             <form onSubmit={handleRequestReset} className="space-y-4">
               <div className="space-y-2">
@@ -224,8 +216,6 @@ export default function ForgotPasswordPage() {
               </Button>
             </form>
           )}
-
-          {/* Step 2: Verify OTP */}
           {step === 2 && (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div className="space-y-2">
@@ -260,8 +250,6 @@ export default function ForgotPasswordPage() {
               )}
             </form>
           )}
-
-          {/* Step 3: Reset password */}
           {step === 3 && (
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-2">

@@ -40,7 +40,7 @@ function LoginContent() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username_or_email, password }), // corrected key
+        body: JSON.stringify({ username_or_email, password }),
       })
 
       const data = await response.json()

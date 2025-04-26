@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { fetchWithAuth } from "@/utils/fetchWithAuth"
 import DashboardLoading from "./loading"
-import Link from "next/link"
 
 type User = {
   email: string
@@ -28,7 +27,6 @@ export default function Dashboard() {
         const data = await res.json()
         setUser(data)
       } catch {
-        // maybe redirect to login here
       } finally {
         setLoading(false)
       }
