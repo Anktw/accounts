@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const session = {
       token: access_token,
       refreshToken: refresh_token,
-      userId: decoded.sub, // ✅ Add this for middleware to work
+      userId: decoded.sub,
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
 
     }
