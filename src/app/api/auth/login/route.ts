@@ -51,6 +51,7 @@ export async function POST(request: Request) {
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
       sameSite: "lax",
+      domain: "*.unkit.site",
     })
 
     return NextResponse.json({ message: "Login successful" }, { status: 200 })

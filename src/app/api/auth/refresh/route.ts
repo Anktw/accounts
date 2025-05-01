@@ -44,6 +44,7 @@ export async function POST() {
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
       sameSite: "lax",
+      domain: "*.unkit.site",
     })
 
     return new Response(JSON.stringify({ message: "Token refreshed" }), { status: 200 })

@@ -10,6 +10,7 @@ export async function POST() {
     maxAge: 0,
     path: "/",
     sameSite: "lax",
+    domain: "*.unkit.site",
   })
 
   return new Response(JSON.stringify({ message: "Logged out" }), { status: 200 })
