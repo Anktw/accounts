@@ -47,10 +47,11 @@ export async function POST(request: Request) {
       name: "session",
       value: encryptedSession,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
-      sameSite: "lax",
+      sameSite: "none",
+      domain: "https://accounts-unkit.vercel.app",
     })
 
     return NextResponse.json({ message: "Login successful" }, { status: 200 })
