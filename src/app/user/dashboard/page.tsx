@@ -68,8 +68,10 @@ export default function Dashboard() {
   
 
   if (loading) return <div><DashboardLoading /></div>
-  if (!user) return null
-
+  if (!user) return <div>
+    please refresh this page, Backend is in cold start mode, so it takes a while to load the page.
+    <Button onClick={() => window.location.reload()} className="mt-4">Refresh</Button>
+  </div>
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
