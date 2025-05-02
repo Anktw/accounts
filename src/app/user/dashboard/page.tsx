@@ -21,33 +21,19 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    async function load(retries = 3, delayMs = 1500) {
-      let attempt = 0
-      const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-      while (attempt < retries) {
-        try {
-          const res = await fetchWithAuth("/api/user/me")
-          if (!res.ok) throw new Error("Not authorized")
-          const data = await res.json()
-          setUser(data)
-          break
-        } catch (err) {
-          attempt++
-          if (attempt >= retries) {
-            console.error("Failed to fetch user after retries:", err)
-          } else {
-            await delay(delayMs)
-          }
-        } finally {
-          if (attempt >= retries) {
-            setLoading(false)
-          }
-        }
+    async function load() {
+      try {
+        const res = await fetchWithAuth("/api/user/me")
+        if (!res.ok) throw new Error("Not authorized")
+        const data = await res.json()
+        setUser(data)
+      } catch {
+      } finally {
+        setLoading(false)
       }
     }
     load()
   }, [])
-  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
@@ -83,7 +69,7 @@ export default function Dashboard() {
   
 
   if (loading) return <div><DashboardLoading /></div>
-  if (!user) return <div className="text-center">User not found...Please clear your cache and refresh this page</div>
+  if (!user) return <div className="text-center">Backend is in inactive state please refresh this page...</div>
 
 
   return (
