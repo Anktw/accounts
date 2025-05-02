@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { fetchWithAuth } from "@/utils/fetchWithAuth"
 import DashboardLoading from "./loading"
-import { useRouter } from "next/router"
 
 type User = {
   email: string
@@ -19,7 +18,6 @@ export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     async function load() {
@@ -70,7 +68,7 @@ export default function Dashboard() {
   
 
   if (loading) return <div><DashboardLoading /></div>
-  if (!user) return router.push("/user/dashboard")
+  if (!user) return null
 
 
   return (
