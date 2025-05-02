@@ -44,6 +44,7 @@ export async function getUserFromSession(): Promise<User | null> {
   }
 }
 
+
 // Middleware-like function to protect routes
 export async function requireAuth() {
   const user = await getUserFromSession()

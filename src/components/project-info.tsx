@@ -25,7 +25,6 @@ export default function ProjectInfo() {
                     </Button>
                 </div>
             </div>
-
             <div className="bg-card rounded-lg p-6 shadow-sm">
                 <h3 className="text-lg font-semibold mb-4">More Info</h3>
                 <ul className="space-y-3">

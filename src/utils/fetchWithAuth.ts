@@ -1,3 +1,7 @@
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}) {
     const opts = { credentials: "include" as RequestCredentials, ...init }
   
@@ -15,7 +19,5 @@ export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}) 
         throw new Error("Session expired")
       }
     }
-  
     return res
   }
-  
