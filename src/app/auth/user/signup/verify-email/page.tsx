@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
+
 function VerifyEmailFunction() {
   const router = useRouter();
   const searchParams = useSearchParams();

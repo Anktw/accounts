@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SocialAuthButtons } from "@/components/social-auth-buttons"
 import { PhoneLogin } from "@/components/phone-login"
 import { Suspense } from "react"
+import { Metadata } from "next"
+
 
 
 function LoginContent() {
