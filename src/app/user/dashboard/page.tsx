@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { fetchWithAuth } from "@/utils/fetchWithAuth"
 import DashboardLoading from "./loading"
+import { useSearchParams } from "next/navigation"
 
 type User = {
   email: string
@@ -18,6 +19,8 @@ export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+
+
 
   useEffect(() => {
     async function load() {
@@ -58,6 +61,14 @@ export default function Dashboard() {
       setSaving(false)
     }
   }
+  useEffect(() => {
+    const redirect = sessionStorage.getItem("redirectAfterLogin")
+    if (redirect) {
+      sessionStorage.removeItem("redirectAfterLogin")
+      window.location.href = redirect
+    }
+  }, [])
+  
 
   if (loading) return <div><DashboardLoading /></div>
   if (!user) return <div className="text-center">User not found...Please clear your cache and refresh this page</div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,8 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+
+  const redirect = searchParams.get("redirect")
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -59,6 +61,12 @@ function LoginContent() {
       setIsLoading(false)
     }
   }
+  
+    useEffect(() => {
+      if (redirect) {
+        sessionStorage.setItem("redirectAfterLogin", redirect)
+      }
+    }, [redirect])
 
   return (
     <div className="container mx-auto flex h-screen items-center justify-center px-4 py-8">
