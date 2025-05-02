@@ -2,9 +2,9 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,8 +16,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function SignupPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  
+
+  const redirect = searchParams.get("redirect")
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -57,6 +61,11 @@ export default function SignupPage() {
       setIsLoading(false)
     }
   }
+  useEffect(() => {
+        if (redirect) {
+          sessionStorage.setItem("redirectAfterLogin", redirect)
+        }
+      }, [redirect])
 
   return (
     <div className="container mx-auto flex h-screen items-center justify-center px-4 py-8">
