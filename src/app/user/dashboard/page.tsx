@@ -14,55 +14,25 @@ type User = {
   last_name?: string
 }
 
-function getCookie(name: string) {
-  if (typeof document === "undefined") return null
-  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"))
-  return match ? match[2] : null
-}
-
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("user")
-      return stored ? JSON.parse(stored) : null
-    }
-    return null
-  })
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    let retries = 0;
-    let stopped = false;
-
     async function load() {
-      // If no session cookie, clear user
-      if (!getCookie("session")) {
-        setUser(null)
-        localStorage.removeItem("user")
+      try {
+        const res = await fetchWithAuth("/api/user/me")
+        if (!res.ok) throw new Error("Not authorized")
+        const data = await res.json()
+        setUser(data)
+      } catch {
+      } finally {
         setLoading(false)
-        return
       }
-
-      while (retries < 5 && !stopped) {
-        try {
-          const res = await fetchWithAuth("/api/user/me");
-          if (res.ok) {
-            const data = await res.json();
-            setUser(data);
-            localStorage.setItem("user", JSON.stringify(data))
-            break;
-          }
-        } catch {}
-        retries++;
-        await new Promise((r) => setTimeout(r, 1500)); // wait 1.5s before retry
-      }
-      setLoading(false);
     }
-
-    load();
-    return () => { stopped = true; };
-  }, []);
+    load()
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
@@ -81,7 +51,6 @@ export default function Dashboard() {
       if (!res.ok) throw new Error("Update failed")
       const updated = await res.json()
       setUser(updated)
-      localStorage.setItem("user", JSON.stringify(updated))
       alert("Profile updated!")
     } catch (err) {
       alert(err instanceof Error ? err.message : "Something went wrong")
@@ -89,7 +58,6 @@ export default function Dashboard() {
       setSaving(false)
     }
   }
-
   useEffect(() => {
     const redirect = sessionStorage.getItem("redirectAfterLogin")
     if (redirect) {
@@ -97,19 +65,13 @@ export default function Dashboard() {
       window.location.href = redirect
     }
   }, [])
+  
 
-  if (loading) return (
-    <div>
-      <DashboardLoading />
-      <div className="mt-4 text-center text-gray-500">Waking up the backend(free deployment Lol), please wait...</div>
-    </div>
-  )
-  if (!user) return (
-    <div>
-      please refresh this page, Backend is in cold start mode, so it takes a while to load the page.
-      <Button onClick={() => window.location.reload()} className="mt-4 gap-2 p-2"> Refresh </Button>
-    </div>
-  )
+  if (loading) return <div><DashboardLoading /></div>
+  if (!user) return <div>
+    please refresh this page, Backend is in cold start mode, so it takes a while to load the page.
+    <Button onClick={() => window.location.reload()} className="mt-4">Refresh</Button>
+  </div>
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
@@ -133,7 +95,6 @@ export default function Dashboard() {
         <Button
           onClick={async () => {
             await fetch("/api/auth/logout", { method: "POST" })
-            localStorage.removeItem("user")
             window.location.href = "/auth/user/login"
           }}
         >
