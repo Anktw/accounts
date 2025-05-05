@@ -15,38 +15,41 @@ type User = {
 }
 
 
-  export default function Dashboard() {
-    const [user, setUser] = useState<User | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [saving, setSaving] = useState(false)
-  
-    useEffect(() => {
-      const cachedUsername = localStorage.getItem("cachedUsername")
-      if (cachedUsername) {
-        setUser((prev) => ({
-          email: "",
-          username: cachedUsername,
-          first_name: "",
-          last_name: "",
-          ...prev,
-        }))
+export default function Dashboard() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [cachedUsername, setCachedUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    const cached = localStorage.getItem("cachedUsername")
+    if (cached) {
+      setCachedUsername(cached)
+      setUser((prev) => ({
+        email: "",
+        username: cached,
+        first_name: "",
+        last_name: "",
+        ...prev,
+      }))
+      setLoading(false) // Showing cached username immediately
+    }
+
+    async function load() {
+      try {
+        const res = await fetchWithAuth("/api/user/me")
+        if (!res.ok) throw new Error("Not authorized")
+        const data: User = await res.json()
+        setUser(data)
+        localStorage.setItem("cachedUsername", data.username)
+      } catch {
+      } finally {
+        setLoading(false)
       }
-  
-      async function load() {
-        try {
-          const res = await fetchWithAuth("/api/user/me")
-          if (!res.ok) throw new Error("Not authorized")
-          const data: User = await res.json()
-          setUser(data)
-          localStorage.setItem("cachedUsername", data.username)
-        } catch {
-        } finally {
-          setLoading(false)
-        }
-      }
-  
-      load()
-    }, [])
+    }
+
+    load()
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
