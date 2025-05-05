@@ -20,19 +20,28 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
+    let retries = 0;
+    let stopped = false;
+
     async function load() {
-      try {
-        const res = await fetchWithAuth("/api/user/me")
-        if (!res.ok) throw new Error("Not authorized")
-        const data = await res.json()
-        setUser(data)
-      } catch {
-      } finally {
-        setLoading(false)
+      while (retries < 5 && !stopped) {
+        try {
+          const res = await fetchWithAuth("/api/user/me");
+          if (res.ok) {
+            const data = await res.json();
+            setUser(data);
+            break;
+          }
+        } catch {}
+        retries++;
+        await new Promise((r) => setTimeout(r, 1500)); // wait 1.5s before retry
       }
+      setLoading(false);
     }
-    load()
-  }, [])
+
+    load();
+    return () => { stopped = true; };
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
@@ -67,10 +76,10 @@ export default function Dashboard() {
   }, [])
   
 
-  if (loading) return <div><DashboardLoading /></div>
+  if (loading) return <div><DashboardLoading /><div className="mt-4 text-center text-gray-500">Waking up the backend(free deployment Lol), please wait...</div></div>
   if (!user) return <div>
     please refresh this page, Backend is in cold start mode, so it takes a while to load the page.
-    <Button onClick={() => window.location.reload()} className="mt-4">Refresh</Button>
+    <Button onClick={() => window.location.reload()} className="mt-4 gap-2 p-2"> Refresh </Button>
   </div>
 
   return (
