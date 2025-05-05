@@ -121,7 +121,8 @@ function VerifyEmailFunction() {
           </div>
           <CardTitle className="text-2xl text-center">Verify your email</CardTitle>
           <CardDescription className="text-center">
-            I’ve sent a verification code to <span className="font-medium">{email}</span>
+            I have sent a verification code to <span className="font-medium">{email} </span>
+            Since This is not a business <span className="text-red-700">Check your Spam folder if you don't see it.</span>
           </CardDescription>
         </CardHeader>
 
