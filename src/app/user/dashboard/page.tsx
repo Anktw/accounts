@@ -14,25 +14,39 @@ type User = {
   last_name?: string
 }
 
-export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetchWithAuth("/api/user/me")
-        if (!res.ok) throw new Error("Not authorized")
-        const data = await res.json()
-        setUser(data)
-      } catch {
-      } finally {
-        setLoading(false)
+  export default function Dashboard() {
+    const [user, setUser] = useState<User | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
+  
+    useEffect(() => {
+      const cachedUsername = localStorage.getItem("cachedUsername")
+      if (cachedUsername) {
+        setUser((prev) => ({
+          email: "",
+          username: cachedUsername,
+          first_name: "",
+          last_name: "",
+          ...prev,
+        }))
       }
-    }
-    load()
-  }, [])
+  
+      async function load() {
+        try {
+          const res = await fetchWithAuth("/api/user/me")
+          if (!res.ok) throw new Error("Not authorized")
+          const data: User = await res.json()
+          setUser(data)
+          localStorage.setItem("cachedUsername", data.username)
+        } catch {
+        } finally {
+          setLoading(false)
+        }
+      }
+  
+      load()
+    }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
