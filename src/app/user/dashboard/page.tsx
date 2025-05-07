@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { fetchWithAuth } from "@/utils/fetchWithAuth"
-import { warmupApi } from "@/utils/warmupApi"
 import DashboardLoading from "./loading"
 
 type User = {
@@ -15,77 +14,33 @@ type User = {
   last_name?: string
 }
 
-const MAX_RETRIES = 3
-const RETRY_DELAY = 2000 // 2 seconds
-
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [retryCount, setRetryCount] = useState(0)
-  const [warmingUp, setWarmingUp] = useState(false)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   useEffect(() => {
-    const cached = localStorage.getItem("cachedUsername")
-    if (cached) {
-      setUser({
-        email: "",
-        username: cached,
-        first_name: "",
-        last_name: "",
-      })
-    }
-
-    async function load(retryAttempt = 0) {
+    async function load() {
       try {
-        // First try to warm up the API
-        if (!warmingUp) {
-          setWarmingUp(true)
-          await warmupApi()
-          setWarmingUp(false)
-        }
-
         const res = await fetchWithAuth("/api/user/me")
         if (!res.ok) {
-          if (retryAttempt < MAX_RETRIES) {
-            setTimeout(() => {
-              setRetryCount(retryAttempt + 1)
-              load(retryAttempt + 1)
-            }, RETRY_DELAY)
-            return
-          }
-          throw new Error("Not authorized")
-        }
-        const data: User = await res.json()
-        // Only update user if we have new data
-        if (data.username !== user?.username) {
-          setUser(data)
-          localStorage.setItem("cachedUsername", data.username)
-        }
-        setError(null)
-      } catch (err) {
-        if (retryAttempt < MAX_RETRIES) {
-          setTimeout(() => {
-            setRetryCount(retryAttempt + 1)
-            load(retryAttempt + 1)
-          }, RETRY_DELAY)
+          window.location.href = "/auth/user/login"
           return
         }
-        setError("Unable to load user data. Please try again.")
-        localStorage.removeItem("cachedUsername")
+        const data: User = await res.json()
+        setUser(data)
+        setError(null)
+      } catch (err) {
+        setError("Unable to load user data")
         window.location.href = "/auth/user/login"
       } finally {
-        if (retryAttempt === MAX_RETRIES) {
-          setLoading(false)
-          setIsInitialLoad(false)
-        }
+        setLoading(false)
       }
     }
 
     load()
-  }, [retryCount, warmingUp])
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
@@ -120,20 +75,10 @@ export default function Dashboard() {
     }
   }, [])
 
-  if (loading && isInitialLoad) {
+  if (loading) {
     return (
       <div className="max-w-xl mx-auto mt-10">
         <DashboardLoading />
-        {warmingUp && (
-          <p className="text-center text-sm text-gray-500 mt-4">
-            Warming up the backend...
-          </p>
-        )}
-        {retryCount > 0 && !warmingUp && (
-          <p className="text-center text-sm text-gray-500 mt-4">
-            Attempting to connect... (Attempt {retryCount}/{MAX_RETRIES})
-          </p>
-        )}
       </div>
     )
   }
@@ -177,7 +122,6 @@ export default function Dashboard() {
         </Button>
         <Button
           onClick={async () => {
-            localStorage.removeItem("cachedUsername")
             await fetch("/api/auth/logout", { method: "POST" })
             window.location.href = "/auth/user/login"
           }}
