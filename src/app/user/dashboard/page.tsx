@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
   const [warmingUp, setWarmingUp] = useState(false)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   useEffect(() => {
     const cached = localStorage.getItem("cachedUsername")
@@ -35,7 +36,6 @@ export default function Dashboard() {
         first_name: "",
         last_name: "",
       })
-      setLoading(false)
     }
 
     async function load(retryAttempt = 0) {
@@ -59,8 +59,11 @@ export default function Dashboard() {
           throw new Error("Not authorized")
         }
         const data: User = await res.json()
-        setUser(data)
-        localStorage.setItem("cachedUsername", data.username)
+        // Only update user if we have new data
+        if (data.username !== user?.username) {
+          setUser(data)
+          localStorage.setItem("cachedUsername", data.username)
+        }
         setError(null)
       } catch (err) {
         if (retryAttempt < MAX_RETRIES) {
@@ -76,6 +79,7 @@ export default function Dashboard() {
       } finally {
         if (retryAttempt === MAX_RETRIES) {
           setLoading(false)
+          setIsInitialLoad(false)
         }
       }
     }
@@ -107,6 +111,7 @@ export default function Dashboard() {
       setSaving(false)
     }
   }
+
   useEffect(() => {
     const redirect = sessionStorage.getItem("redirectAfterLogin")
     if (redirect) {
@@ -114,9 +119,8 @@ export default function Dashboard() {
       window.location.href = redirect
     }
   }, [])
-  
 
-  if (loading) {
+  if (loading && isInitialLoad) {
     return (
       <div className="max-w-xl mx-auto mt-10">
         <DashboardLoading />
