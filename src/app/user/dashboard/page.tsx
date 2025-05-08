@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [localUsername, setLocalUsername] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -31,6 +32,11 @@ export default function Dashboard() {
         const data: User = await res.json()
         setUser(data)
         setError(null)
+        // Store username in localStorage if not already present
+        if (data.username && localStorage.getItem("username") !== data.username) {
+          localStorage.setItem("username", data.username)
+          setLocalUsername(data.username)
+        }
       } catch (err) {
         setError("Unable to load user data")
         window.location.href = "/auth/user/login"
@@ -40,6 +46,12 @@ export default function Dashboard() {
     }
 
     load()
+  }, [])
+
+  useEffect(() => {
+    // Get username from localStorage on mount
+    const storedUsername = typeof window !== "undefined" ? localStorage.getItem("username") : null
+    setLocalUsername(storedUsername)
   }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,6 +71,11 @@ export default function Dashboard() {
       if (!res.ok) throw new Error("Update failed")
       const updated = await res.json()
       setUser(updated)
+      // Update username in localStorage if changed
+      if (updated.username && localStorage.getItem("username") !== updated.username) {
+        localStorage.setItem("username", updated.username)
+        setLocalUsername(updated.username)
+      }
       alert("Profile updated!")
     } catch (err) {
       alert(err instanceof Error ? err.message : "Something went wrong")
@@ -104,6 +121,9 @@ export default function Dashboard() {
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
       <h2 className="text-2xl font-semibold">Account Settings</h2>
+      {localUsername && (
+        <div className="mb-4 text-gray-500">Hello, {localUsername}!</div>
+      )}
       <div className="grid gap-4">
         {["email", "username", "first_name", "last_name"].map((field) => (
           <div key={field}>
@@ -123,6 +143,7 @@ export default function Dashboard() {
         <Button
           onClick={async () => {
             await fetch("/api/auth/logout", { method: "POST" })
+            localStorage.removeItem("username")
             window.location.href = "/auth/user/login"
           }}
         >

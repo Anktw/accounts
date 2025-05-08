@@ -53,6 +53,8 @@ export async function POST(request: Request) {
       sameSite: "lax",
       domain: "unkit.site",
     })
+    // Set the username in localStorage (if needed)(i am doing this for slow backend response)
+    localStorage.setItem("username", data.username)
 
     return NextResponse.json({ message: "Login successful" }, { status: 200 })
   } catch (error) {
