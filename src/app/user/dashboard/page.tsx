@@ -54,6 +54,12 @@ export default function Dashboard() {
     setLocalUsername(storedUsername)
   }, [])
 
+  useEffect(() => {
+    // Print the username from localStorage to the console
+    const storedUsername = localStorage.getItem("username");
+    console.log("Username in localStorage:", storedUsername);
+  }, [localUsername]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
     setUser({ ...user, [e.target.name]: e.target.value })
@@ -96,6 +102,7 @@ export default function Dashboard() {
     return (
       <div className="max-w-xl mx-auto mt-10">
         <DashboardLoading />
+        Looks Like Backend is sleeping....waking up
       </div>
     )
   }
@@ -117,6 +124,7 @@ export default function Dashboard() {
       </div>
     )
   }
+  
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
