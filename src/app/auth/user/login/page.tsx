@@ -120,12 +120,12 @@ function LoginContent() {
                       Remember me
                     </Label>
                   </div>
-                  <Link href="./forgot-password" className="text-sm text-primary underline underline-offset-4">
+                  <Link href="./forgot-password" className="text-sm text-primary underline underline-offset-4 cursor-pointer">
                     Forgot password?
                   </Link>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -160,7 +160,7 @@ function LoginContent() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/auth/user/signup" className="text-primary underline underline-offset-4">
+            <Link href="/auth/user/signup" className="text-primary underline underline-offset-4 cursor-pointer">
               Sign up
             </Link>
           </p>

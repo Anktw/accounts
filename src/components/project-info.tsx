@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Globe, Github, Mail, ExternalLink } from "lucide-react";
+import { ModeToggle } from "./mode-toggle";
 
 export default function ProjectInfo() {
     return (
@@ -26,7 +27,7 @@ export default function ProjectInfo() {
                 </div>
             </div>
             <div className="bg-card rounded-lg p-6 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4">More Info</h3>
+                <h3 className="text-lg font-semibold mb-4">More Info and Settings</h3>
                 <ul className="space-y-3">
                     <li>
                         <a
@@ -61,6 +62,14 @@ export default function ProjectInfo() {
                             <span>Contact me</span>
                             <ExternalLink size={14} className="ml-auto text-muted-foreground" />
                         </a>
+                    </li>
+                    <li>
+                        <div className="flex items-center gap-2 p-2 rounded-md transition-colors">
+                            <span>Toggle Theme</span>
+                            <span className="ml-auto text-muted-foreground">
+                                <ModeToggle />
+                            </span>
+                        </div>
                     </li>
                 </ul>
             </div>

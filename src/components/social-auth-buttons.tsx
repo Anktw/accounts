@@ -37,7 +37,7 @@ export function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
         type="button"
         disabled={isLoading === "google"}
         onClick={() => handleSocialAuth("google")}
-        className="bg-white text-gray-800 hover:bg-gray-100"
+        className="bg-background text-foreground hover:bg-gray-100"
       >
         {isLoading === "google" ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -63,13 +63,12 @@ export function SocialAuthButtons({ mode }: SocialAuthButtonsProps) {
         )}
         {actionText} Google
       </Button>
-
       <Button
         variant="outline"
         type="button"
         disabled={isLoading === "github"}
         onClick={() => handleSocialAuth("github")}
-        className="bg-white text-gray-800 hover:bg-gray-100"
+        className="bg-background text-foreground hover:bg-gray-100"
       >
         {isLoading === "github" ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

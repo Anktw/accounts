@@ -187,7 +187,7 @@ export default function ForgotPasswordPage() {
             </Alert>
           )}
           {success && (
-            <Alert className="bg-green-50 text-green-800 border-green-200">
+            <Alert className="bg-background my-2 text-green-800 border-green-200">
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>{success}</AlertDescription>
             </Alert>
