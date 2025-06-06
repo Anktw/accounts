@@ -133,7 +133,7 @@ export default function Dashboard() {
         <div className="mb-4 text-gray-500">Hello, {localUsername}!</div>
       )}
       <div className="grid gap-4">
-        {["email", "username", "first_name", "last_name"].map((field) => (
+        {["username", "first_name", "last_name"].map((field) => (
           <div key={field}>
             <Label htmlFor={field}>{field.replace("_", " ").toUpperCase()}</Label>
             <Input

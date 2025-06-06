@@ -1,0 +1,91 @@
+accounts/
+├── components.json
+├── env.example
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── postcss.config.mjs
+├── README.md
+├── tsconfig.json
+├── public/
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── src/
+│   ├── middleware.ts
+│   ├── app/
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── loading.tsx
+│   │   ├── page.tsx
+│   │   ├── api/
+│   │   │   ├── auth/
+│   │   │   │   ├── github/route.ts
+│   │   │   │   ├── google/route.ts
+│   │   │   │   ├── login/route.ts
+│   │   │   │   ├── logout/route.ts
+│   │   │   │   ├── refresh/route.ts
+│   │   │   │   ├── request-password-reset/route.ts
+│   │   │   │   ├── resend-otp/route.ts
+│   │   │   │   ├── resend-reset-otp/route.ts
+│   │   │   │   ├── reset-password/route.ts
+│   │   │   │   ├── set-session/route.ts
+│   │   │   │   ├── signup/route.ts
+│   │   │   │   ├── verify-email/route.ts
+│   │   │   │   └── verify-reset-otp/route.ts
+│   │   │   └── user/
+│   │   │       └── me/
+│   │   │           ├── route.ts
+│   │   │           └── update/
+│   │   ├── auth/
+│   │   │   ├── admin/
+│   │   │   └── user/
+│   │   │       ├── callback/page.tsx
+│   │   │       ├── forgot-password/
+│   │   │       │   ├── loading.tsx
+│   │   │       │   └── page.tsx
+│   │   │       ├── login/
+│   │   │       │   ├── loading.tsx
+│   │   │       │   └── page.tsx
+│   │   │       ├── signup/
+│   │   │       │   ├── loading.tsx
+│   │   │       │   ├── page.tsx
+│   │   │       │   └── verify-email/
+│   │   │       │       ├── loading.tsx
+│   │   │       │       └── page.tsx
+│   │   └── user/
+│   │       ├── dashboard/
+│   │       │   ├── loading.tsx
+│   │       │   └── page.tsx
+│   │       └── me/
+│   │           └── page.tsx
+│   ├── components/
+│   │   ├── logout-button.tsx
+│   │   ├── mode-toggle.tsx
+│   │   ├── phone-login.tsx
+│   │   ├── phone-signup.tsx
+│   │   ├── profile-skeleton.tsx
+│   │   ├── project-info.tsx
+│   │   ├── social-auth-buttons.tsx
+│   │   ├── theme-provider.tsx
+│   │   └── ui/
+│   │       ├── alert-dialog.tsx
+│   │       ├── alert.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── separator.tsx
+│   │       ├── skeleton.tsx
+│   │       └── tabs.tsx
+│   ├── lib/
+│   │   ├── api.ts
+│   │   ├── auth.ts
+│   │   ├── crypto.ts
+│   │   └── utils.ts
+│   └── utils/
+│       └── fetchWithAuth.ts
