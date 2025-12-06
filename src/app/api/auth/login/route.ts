@@ -46,12 +46,12 @@ export async function POST(request: Request) {
     cookieStore.set({
       name: "session",
       value: encryptedSession,
-      httpOnly: true,
+      //httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 30 * 24 * 60 * 60,
       path: "/",
-      sameSite: "lax",
-      domain: "unkit.site",
+      //sameSite: "lax",
+      //domain: "unkit.site",
     })
 
     return NextResponse.json({ message: "Login successful" }, { status: 200 })

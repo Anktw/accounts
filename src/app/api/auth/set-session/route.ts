@@ -24,12 +24,12 @@ export async function POST(req: Request) {
         cookieStore.set({
             name: "session",
             value: encrypted,
-            httpOnly: true,
+            //httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             maxAge: 30 * 24 * 60 * 60,
             path: "/",
-            sameSite: "lax",
-            domain: "unkit.site",
+            //sameSite: "lax",
+            //domain: "unkit.site",
         })
 
         return new Response(JSON.stringify({ message: "Session set" }), { status: 200 })
